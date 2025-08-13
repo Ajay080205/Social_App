@@ -14,11 +14,26 @@ const Post = require("./models/Post");
 
 dotenv.config();
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://social-app-6edm.onrender.com", // backend (if you ever test directly)
+  "https://social-app-1-maza.onrender.com" // frontend
+];
+
+// Express CORS
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true // Needed if using cookies or auth headers
+}));
+
 const httpServer = require("http").createServer(app);
+// Socket.IO CORS
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: ["http://localhost:3000", "https://social-app-6edm.onrender.com"],
-  },
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true
+  }
 });
 
 io.use(authSocket);
@@ -37,7 +52,6 @@ httpServer.listen(process.env.PORT || 4000, () => {
 });
 
 app.use(express.json());
-app.use(cors());
 app.use("/api/posts", posts);
 app.use("/api/users", users);
 app.use("/api/comments", comments);
